@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .user import User
+    from .application import Application
 
 class PassportData(Base):
     __tablename__ = "passport_data"
@@ -21,8 +22,8 @@ class PassportData(Base):
     gender: Mapped[str] = mapped_column(String(10))
     nationality: Mapped[str] = mapped_column(String(50))
 
-    user: Mapped["User"] = relationship(back_populates="passport_data")
-
+    user: Mapped["User"] = relationship("User", back_populates="passport_data")
+    application: Mapped["Application"] = relationship("Application", back_populates="passport_data", uselist=False)
 
     def __repr__(self):
         return (
@@ -36,4 +37,3 @@ class PassportData(Base):
             f"{self.passport_series_number}, Issued: {self.issue_date}, "
             f"Authority: {self.issuing_authority}"
         )
-

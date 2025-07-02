@@ -5,17 +5,19 @@ __all__ = (
     "ExamForm",
     "User",
     "PassportData",
-    "StudyInfo"
+    "StudyInfo",
+    "Application",
 
 )
 
 
-from .study_direction import StudyDirection
-from .study_lenguage import StudyLanguage
-from .study_form import StudyForm
-from .exam_form import ExamForm
+from .admin.study_direction import StudyDirection
+from .admin.study_lenguage import StudyLanguage
+from .admin.study_form import StudyForm
+from .admin.exam_form import ExamForm
 from .user import User
 from .passport_data import PassportData
 from .study_info import StudyInfo
+from .application import Application
 
 

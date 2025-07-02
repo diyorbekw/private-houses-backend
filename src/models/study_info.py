@@ -4,11 +4,12 @@ from src.db.base import Base
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .exam_form import ExamForm
-    from .study_form import StudyForm
-    from .study_lenguage import StudyLanguage
-    from .study_direction import StudyDirection
+    from .admin.exam_form import ExamForm
+    from .admin.study_form import StudyForm
+    from .admin.study_lenguage import StudyLanguage
+    from .admin.study_direction import StudyDirection
     from .user import User
+    from .application import Application
 
 class StudyInfo(Base):
     __tablename__ = "study_info"
@@ -20,12 +21,12 @@ class StudyInfo(Base):
     study_form_id: Mapped[int] = mapped_column(ForeignKey("study_forms.id"))
     study_language_id: Mapped[int] = mapped_column(ForeignKey("study_languages.id"))
 
-    # Relationships
-    user: Mapped["User"] = relationship(back_populates="study_info")
-    exam_form: Mapped["ExamForm"] = relationship(back_populates="study_infos")
-    study_direction: Mapped["StudyDirection"] = relationship(back_populates="study_infos")
-    study_form: Mapped["StudyForm"] = relationship(back_populates="study_infos")
-    study_language: Mapped["StudyLanguage"] = relationship(back_populates="study_infos")
+    user: Mapped["User"] = relationship("User", back_populates="study_info")
+    exam_form: Mapped["ExamForm"] = relationship("ExamForm", back_populates="study_infos")
+    study_direction: Mapped["StudyDirection"] = relationship("StudyDirection", back_populates="study_infos")
+    study_form: Mapped["StudyForm"] = relationship("StudyForm", back_populates="study_infos")
+    study_language: Mapped["StudyLanguage"] = relationship("StudyLanguage", back_populates="study_infos")
+    application: Mapped["Application"] = relationship("Application", back_populates="study_info", uselist=False)
 
     def __repr__(self):
         return (
