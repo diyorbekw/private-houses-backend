@@ -8,7 +8,6 @@ from src.models import StudyInfo
 from src.schemas.study_info import (
     StudyInfoBase,
     StudyInfoCreate,
-    StudyInfoUpdate,
     StudyInfoFilter,
     StudyInfoResponse,
 )
@@ -47,7 +46,6 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
                 joinedload(StudyInfo.study_language),
                 joinedload(StudyInfo.study_form),
                 joinedload(StudyInfo.study_direction),
-                joinedload(StudyInfo.exam_form),
             )
             .where(StudyInfo.id == study_info_id)
         )
@@ -69,7 +67,6 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
             study_language=study_info.study_language.name,
             study_form=study_info.study_form.name,
             study_direction=study_info.study_direction.name,
-            exam_form=study_info.exam_form.name,
         )
 
     async def get_by_id_study_info(self, study_info_id: int, user_id: int) -> StudyInfoResponse:
@@ -89,8 +86,6 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
             filters.append(StudyInfo.study_form_id == filters_data.study_form)
         if filters_data.study_direction:
             filters.append(StudyInfo.study_direction_id == filters_data.study_direction)
-        if filters_data.exam_form:
-            filters.append(StudyInfo.exam_form_id == filters_data.exam_form)
 
         stmt = (
             select(StudyInfo)
@@ -98,7 +93,6 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
                 joinedload(StudyInfo.study_language),
                 joinedload(StudyInfo.study_form),
                 joinedload(StudyInfo.study_direction),
-                joinedload(StudyInfo.exam_form),
             )
             .where(*filters)
             .limit(limit)

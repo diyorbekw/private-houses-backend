@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel , ConfigDict
 
 class StudyDirectionBase(BaseModel):
     name: str
@@ -12,6 +12,7 @@ class StudyDirectionBase(BaseModel):
 class StudyDirectionResponse(StudyDirectionBase):
     id: int
 
+    model_config = ConfigDict(from_attributes=True)
 
 
 class StudyDirectionUpdate(BaseModel):
