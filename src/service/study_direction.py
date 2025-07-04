@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from src.service import BasicCrud
-from src.models import StudyDirection
+from sharq_models.models import StudyDirection
 from src.schemas.study_direction import (
     StudyDirectionBase,
     StudyDirectionUpdate,  

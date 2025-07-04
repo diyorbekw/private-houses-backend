@@ -15,7 +15,7 @@ from src.utils import (
     create_access_token
     )
 from src.schemas.user import  Token , RegisterData
-from src.models import User
+from sharq_models.models import User
 
 
 class UserAuthService(BasicCrud[User, RegisterData]):

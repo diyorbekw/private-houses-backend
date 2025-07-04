@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from typing import List
 
-from src.models import StudyInfo
+from sharq_models.models import StudyInfo
 from src.schemas.study_info import (
     StudyInfoBase,
     StudyInfoCreate,
@@ -17,14 +17,6 @@ from src.service import BasicCrud
 class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
     def __init__(self, db: AsyncSession):
         super().__init__(db)
-
-    async def create_study_info(self, obj_info: StudyInfoBase, user_id: int) -> StudyInfoResponse:
-        new_info = StudyInfoCreate(
-            user_id=user_id,
-            **obj_info.model_dump()
-        )
-        info_data = await self._create_study_info_if_not_exists(obj=new_info)
-        return await self._get_with_join(study_info_id=info_data.id, user_id=user_id)
 
     async def _create_study_info_if_not_exists(self, obj: StudyInfoCreate) -> StudyInfo:
         exist_user = await super().get_by_field(
@@ -39,7 +31,7 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
             )
         return await super().create(model=StudyInfo, obj_items=obj)
 
-    async def _get_with_join(self, study_info_id: int, user_id: int) -> StudyInfoResponse:
+    async def _get_with_join(self, study_info_id: int) -> StudyInfoResponse:
         stmt = (
             select(StudyInfo)
             .options(
@@ -55,9 +47,6 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
         if not study_info:
             raise HTTPException(status_code=404, detail="Ma'lumot topilmadi")
 
-        if study_info.user_id != user_id:
-            raise HTTPException(status_code=403, detail="Ruxsat yo'q")
-
         return self._to_response_with_names(study_info)
 
     def _to_response_with_names(self, study_info: StudyInfo) -> StudyInfoResponse:
@@ -69,8 +58,8 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
             study_direction=study_info.study_direction.name,
         )
 
-    async def get_by_id_study_info(self, study_info_id: int, user_id: int) -> StudyInfoResponse:
-        return await self._get_with_join(study_info_id=study_info_id, user_id=user_id)
+    async def get_by_id_study_info(self, study_info_id: int) -> StudyInfoResponse:
+        return await self._get_with_join(study_info_id=study_info_id)
 
     async def get_all_study_info(
         self,
@@ -103,11 +92,11 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
         study_infos = result.scalars().all()
         return [self._to_response_with_names(info) for info in study_infos]
 
-    async def update_study_info(self, study_info_id: int, obj: StudyInfoBase, user_id: int):
-        await self.get_by_id_study_info(study_info_id=study_info_id, user_id=user_id)
+    async def update_study_info(self, study_info_id: int, obj: StudyInfoBase):
+        await self.get_by_id_study_info(study_info_id=study_info_id)
         await super().update(model=StudyInfo, item_id=study_info_id, obj_items=obj)
-        return await self._get_with_join(study_info_id=study_info_id, user_id=user_id)
+        return await self._get_with_join(study_info_id=study_info_id)
 
-    async def delete_study_info(self, study_info_id: int, user_id: int):
-        await self.get_by_id_study_info(study_info_id=study_info_id, user_id=user_id)
+    async def delete_study_info(self, study_info_id: int):
+        await self.get_by_id_study_info(study_info_id=study_info_id)
         return await super().delete(model=StudyInfo, item_id=study_info_id)

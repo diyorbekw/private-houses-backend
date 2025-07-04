@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from src.service import BasicCrud
-from src.models import StudyForm
+from sharq_models.models import StudyForm
 from src.schemas.study_form import (
     StudyFormBase,
     StudyFormUpdate,

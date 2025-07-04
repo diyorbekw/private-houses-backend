@@ -4,7 +4,7 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import joinedload
 
 from src.service import BasicCrud
-from src.models import ( 
+from sharq_models.models import ( 
     Application, 
     PassportData, 
     StudyInfo,
@@ -13,52 +13,14 @@ from src.models import (
     StudyForm
 )
 from src.schemas.application import ApplicationBase, ApplicationResponse, ApplicationFilter
-from src.schemas.passport_data import PassportDataResponse
-from src.schemas.study_info import StudyInfoResponse
+
 
 
 class ApplicationCrud(BasicCrud[Application, ApplicationBase]):
     def __init__(self, db: AsyncSession):
         super().__init__(db)
 
-    async def application_creation(self, user_id: int) -> ApplicationResponse:
-        passport_data = await super().get_by_field(
-            model=PassportData, field_name="user_id", field_value=user_id
-        )
-        study_info = await super().get_by_field(
-            model=StudyInfo, field_name="user_id", field_value=user_id
-        )
-
-        if not passport_data or not study_info:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Passport yoki Ta'lim ma'lumotlari topilmadi"
-            )
-
-        # Check for existing application
-        stmt = select(Application).where(
-            Application.passport_data_id == passport_data.id,
-            Application.study_info_id == study_info.id
-        )
-        result = await self.db.execute(stmt)
-        existing = result.scalar_one_or_none()
-
-        if existing:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Bu foydalanuvchi uchun ariza allaqachon mavjud"
-            )
-
-        # Create new application
-        application_data = ApplicationBase(
-            passport_data_id=passport_data.id,
-            study_info_id=study_info.id
-        )
-        return await super().create(model=Application, obj_items=application_data)
-
- 
-
-    async def get_application_with_nested_info(self, application_id: int, user_id: int | None = None):
+    async def get_application_with_nested_info(self, application_id: int):
         stmt = (
             select(Application)
             .options(
@@ -69,13 +31,6 @@ class ApplicationCrud(BasicCrud[Application, ApplicationBase]):
             )
             .where(Application.id == application_id)
         )
-
-        # Ownership filter
-        if user_id is not None:
-            stmt = stmt.where(
-                Application.passport_data.has(PassportData.user_id == user_id),
-                Application.study_info.has(StudyInfo.user_id == user_id)
-            )
 
         result = await self.db.execute(stmt)
         application = result.scalars().first()
@@ -137,14 +92,8 @@ class ApplicationCrud(BasicCrud[Application, ApplicationBase]):
         result = await self.db.execute(stmt)
         return result.scalars().all()
 
-    async def delete_application(self, application_id: int, user_id: int | None = None):
+    async def delete_application(self, application_id: int):
         stmt = select(Application).where(Application.id == application_id)
-
-        if user_id is not None:
-            stmt = stmt.where(
-                Application.passport_data.has(PassportData.user_id == user_id)
-            )
-
         result = await self.db.execute(stmt)
         application = result.scalars().first()
 
