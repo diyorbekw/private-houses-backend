@@ -20,14 +20,12 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
 
     async def _create_study_info_if_not_exists(self, obj: StudyInfoCreate) -> StudyInfo:
         exist_user = await super().get_by_field(
-            model=StudyInfo,
-            field_name="user_id",
-            field_value=obj.user_id
+            model=StudyInfo, field_name="user_id", field_value=obj.user_id
         )
         if exist_user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Foydalanuvchiga tegishli ma'lumot allaqachon mavjud"
+                detail="Foydalanuvchiga tegishli ma'lumot allaqachon mavjud",
             )
         return await super().create(model=StudyInfo, obj_items=obj)
 

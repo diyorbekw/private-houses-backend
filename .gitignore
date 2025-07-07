@@ -11,5 +11,28 @@ wheels/
 
 # Virtual environments
 .venv
+.env
+
+
+# IDE
+.vscode
+.idea
+
+# pycharm
+.idea
+
+# vscode
+.vscode
+
+# python 
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyzwz
+__pycache__/
 
 

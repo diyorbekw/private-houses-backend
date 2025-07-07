@@ -1,7 +1,8 @@
-from pydantic import BaseModel , ConfigDict
+from pydantic import BaseModel, ConfigDict
 from .study_language import StudyLanguageResponse
 from .study_form import StudyFormResponse
 from .study_direction import StudyDirectionResponse
+
 
 class StudyInfoBase(BaseModel):
     study_language_id: int
@@ -9,10 +10,8 @@ class StudyInfoBase(BaseModel):
     study_direction_id: int
 
 
-
 class StudyInfoCreate(StudyInfoBase):
     user_id: int
-
 
 
 class StudyInfoUpdate(BaseModel):
@@ -21,12 +20,10 @@ class StudyInfoUpdate(BaseModel):
     study_direction_id: int | None = None
 
 
-
 class StudyInfoFilter(BaseModel):
     study_language: int | None = None
     study_form: int | None = None
     study_direction: int | None = None
-
 
 
 class StudyInfoResponse(BaseModel):
@@ -37,6 +34,3 @@ class StudyInfoResponse(BaseModel):
     study_direction: StudyDirectionResponse
 
     model_config = ConfigDict(from_attributes=True)
-
-
-

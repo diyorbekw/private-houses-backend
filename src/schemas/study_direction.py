@@ -1,4 +1,5 @@
-from pydantic import BaseModel , ConfigDict
+from pydantic import BaseModel, ConfigDict
+
 
 class StudyDirectionBase(BaseModel):
     name: str
@@ -6,7 +7,6 @@ class StudyDirectionBase(BaseModel):
     contract_sum: str
     education_years: str
     study_code: str
-
 
 
 class StudyDirectionResponse(StudyDirectionBase):
@@ -21,6 +21,7 @@ class StudyDirectionUpdate(BaseModel):
     contract_sum: str | None = None
     education_years: str | None = None
     study_code: str | None = None
+
 
 class StudyDirectionFilter(BaseModel):
     name: str | None = None

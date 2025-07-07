@@ -2,7 +2,7 @@
 # from fastapi import HTTPException , status
 
 # ESKIZ_SMS_URL = "https://notify.eskiz.uz/api/message/sms/send"
-# ESKIZ_TOKEN = "your_actual_token_here" 
+# ESKIZ_TOKEN = "your_actual_token_here"
 
 # async def send_sms(
 #     mobile_phone: str,

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Security
-from sharq_models.models import User
+from sharq_models import User
 from src.utils.auth import get_current_user
 from src.service.study_direction import StudyDirectionCrud
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,14 +9,11 @@ from src.schemas.study_direction import (
     StudyDirectionResponse,
     StudyDirectionFilter,
 )
-from sharq_models.db import get_db
+from src.core.db import get_db
 from typing import Annotated, List
 
 
-study_direction_router = APIRouter(
-    prefix="/study_direction",
-    tags=["Study Direction"]
-)
+study_direction_router = APIRouter(prefix="/study_direction", tags=["Study Direction"])
 
 
 def get_service_crud(db: AsyncSession = Depends(get_db)):
@@ -27,28 +24,29 @@ def get_service_crud(db: AsyncSession = Depends(get_db)):
 async def create_study_direction(
     item: StudyDirectionBase,
     service: Annotated[StudyDirectionCrud, Depends(get_service_crud)],
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])]
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
 ):
     return await service.create_study_direction(obj=item)
 
 
-@study_direction_router.get("/get_by_id/{direction_id}", response_model=StudyDirectionResponse)
+@study_direction_router.get(
+    "/get_by_id/{direction_id}", response_model=StudyDirectionResponse
+)
 async def get_by_study_direction_id(
     direction_id: int,
     service: Annotated[StudyDirectionCrud, Depends(get_service_crud)],
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])]
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
 ):
     return await service.get_by_study_direction_id(direction_id=direction_id)
 
 
 @study_direction_router.get("/get_all", response_model=List[StudyDirectionResponse])
 async def get_all_study_directions(
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])],
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
     service: Annotated[StudyDirectionCrud, Depends(get_service_crud)],
     filter_items: StudyDirectionFilter = Depends(),
     limit: int = 20,
     offset: int = 0,
-    
 ):
     return await service.get_study_direction_all(
         filter_obj=filter_items,
@@ -57,11 +55,13 @@ async def get_all_study_directions(
     )
 
 
-@study_direction_router.put("/update/{direction_id}", response_model=StudyDirectionResponse)
+@study_direction_router.put(
+    "/update/{direction_id}", response_model=StudyDirectionResponse
+)
 async def update_study_direction(
     direction_id: int,
     update_data: StudyDirectionUpdate,
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])],
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
     service: Annotated[StudyDirectionCrud, Depends(get_service_crud)],
 ):
     return await service.update_study_direction(
@@ -74,6 +74,6 @@ async def update_study_direction(
 async def delete_study_direction(
     direction_id: int,
     service: Annotated[StudyDirectionCrud, Depends(get_service_crud)],
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])]
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
 ):
     return await service.delete_study_direction(direction_id=direction_id)

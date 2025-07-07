@@ -7,15 +7,13 @@ from fastapi.security import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
 from src.service import BasicCrud
-from src.utils import ( 
-    hash_password,
-    authenticate_user,
-    create_access_token
-    )
-from src.schemas.user import  Token , RegisterData
-from sharq_models.models import User
+from src.service.role import RoleService
+from src.service.sms import SMSVerificationService
+from src.utils import hash_password, authenticate_user, create_access_token
+from src.schemas.user import Token, RegisterData
+from src.schemas.sms import RegisterWithVerificationRequest
+from src.models.user import User
 
 
 class UserAuthService(BasicCrud[User, RegisterData]):
@@ -23,31 +21,94 @@ class UserAuthService(BasicCrud[User, RegisterData]):
         super().__init__(db)
 
     async def register(self, user_data: RegisterData):
-        hashed_password = hash_password(user_data.password)
+        if await self.get_by_field(
+            model=User, field_name="phone_number", field_value=user_data.phone_number
+        ):
+            raise HTTPException(status_code=400, detail="User already exists")
+
+        # Get or assign role
+        role_service = RoleService(self.db)
+        if user_data.role_id:
+            # Verify the role exists
+            await role_service.get_role_by_id(user_data.role_id)
+        else:
+            # Assign default role
+            default_role = await role_service.get_default_role()
+            user_data.role_id = default_role.id
+
         user_info = RegisterData(
             phone_number=user_data.phone_number,
-            password=hashed_password
+            password=hash_password(user_data.password),
+            role_id=user_data.role_id,
         )
-        return await super().create(model=User, obj_items=user_info)
+        result = await super().create(model=User, obj_items=user_info)
+        return dict(
+            message="User created successfully",
+            data={
+                "user_id": result.id,
+                "phone_number": result.phone_number,
+                "role_id": result.role_id,
+            },
+        )
+
+    async def register_with_verification(self, user_data: RegisterWithVerificationRequest):
+        """Register user with SMS verification"""
+        # Verify SMS code first
+        sms_service = SMSVerificationService(self.db)
+        await sms_service.verify_code(user_data.phone_number, user_data.verification_code)
+        
+        # Check if user already exists
+        if await self.get_by_field(
+            model=User, field_name="phone_number", field_value=user_data.phone_number
+        ):
+            raise HTTPException(status_code=400, detail="User already exists")
+
+        # Get or assign role
+        role_service = RoleService(self.db)
+        if user_data.role_id:
+            # Verify the role exists
+            await role_service.get_role_by_id(user_data.role_id)
+        else:
+            # Assign default role
+            default_role = await role_service.get_default_role()
+            user_data.role_id = default_role.id
+
+        # Create user
+        user_info = RegisterData(
+            phone_number=user_data.phone_number,
+            password=hash_password(user_data.password),
+            role_id=user_data.role_id,
+        )
+        result = await super().create(model=User, obj_items=user_info)
+        
+        # Generate access token
+        access_token = create_access_token(
+            data={"sub": result.phone_number, "role_id": result.role_id},
+        )
+        
+        return dict(
+            message="User registered successfully",
+            data={
+                "user_id": result.id,
+                "phone_number": result.phone_number,
+                "role_id": result.role_id,
+            },
+            token=access_token
+        )
 
     async def login(
-        self,
-        form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+        self, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
     ) -> Token:
         user = await authenticate_user(
-            db=self.db,
-            username=form_data.username,
-            password=form_data.password
+            db=self.db, username=form_data.username, password=form_data.password
         )
         if not user:
-            raise HTTPException(status_code=400, detail="Incorrect username or password")
+            raise HTTPException(
+                status_code=400, detail="Incorrect username or password"
+            )
 
         access_token = create_access_token(
-            data={"sub": user.phone_number, "scopes": form_data.scopes},
+            data={"sub": user.phone_number, "role_id": user.role_id},
         )
 
         return Token(access_token=access_token, token_type="bearer")
-
-
-
-

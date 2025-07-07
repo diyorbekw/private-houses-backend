@@ -1,0 +1,9 @@
+alembic
+asyncpg
+fastapi[all]
+passlib[bcrypt]
+pydantic-settings
+pyjwt
+sqlalchemy
+uvicorn
+httpx

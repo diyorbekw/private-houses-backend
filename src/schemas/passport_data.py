@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from datetime import  date
+from datetime import date
+
 
 class PassportDataBase(BaseModel):
     passport_series_number: str

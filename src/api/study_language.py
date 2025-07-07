@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends , Security
+from fastapi import APIRouter, Depends, Security
 from src.utils.auth import get_current_user
 from sharq_models.models import User
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,12 +11,9 @@ from src.schemas.study_language import (
     StudyLanguageResponse,
     StudyLanguageFilter,
 )
-from  sharq_models.db import get_db
+from src.core.db import get_db
 
-study_language_router = APIRouter(
-    prefix="/study_language",
-    tags=["Study Language"]
-)
+study_language_router = APIRouter(prefix="/study_language", tags=["Study Language"])
 
 
 def get_service_crud(db: AsyncSession = Depends(get_db)):
@@ -27,23 +24,25 @@ def get_service_crud(db: AsyncSession = Depends(get_db)):
 async def create_study_language(
     item: StudyLanguageBase,
     service: Annotated[StudyLanguageCrud, Depends(get_service_crud)],
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])]
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
 ):
     return await service.create_study_language(obj=item)
 
 
-@study_language_router.get("/get_by_id/{language_id}", response_model=StudyLanguageResponse)
+@study_language_router.get(
+    "/get_by_id/{language_id}", response_model=StudyLanguageResponse
+)
 async def get_by_study_language_id(
     language_id: int,
     service: Annotated[StudyLanguageCrud, Depends(get_service_crud)],
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])]
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
 ):
     return await service.get_by_study_language_id(language_id=language_id)
 
 
 @study_language_router.get("/get_all", response_model=List[StudyLanguageResponse])
 async def get_all_study_languages(
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])],
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
     service: Annotated[StudyLanguageCrud, Depends(get_service_crud)],
     filter_items: StudyLanguageFilter = Depends(),
     limit: int = 20,
@@ -56,12 +55,14 @@ async def get_all_study_languages(
     )
 
 
-@study_language_router.put("/update/{language_id}", response_model=StudyLanguageResponse)
+@study_language_router.put(
+    "/update/{language_id}", response_model=StudyLanguageResponse
+)
 async def update_study_language(
     language_id: int,
     update_data: StudyLanguageUpdate,
     service: Annotated[StudyLanguageCrud, Depends(get_service_crud)],
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])]
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
 ):
     return await service.update_study_language(
         language_id=language_id,
@@ -73,6 +74,6 @@ async def update_study_language(
 async def delete_study_language(
     language_id: int,
     service: Annotated[StudyLanguageCrud, Depends(get_service_crud)],
-    current_user: Annotated[User , Security(get_current_user , scopes=["admin"])]
+    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
 ):
     return await service.delete_study_language(language_id=language_id)
