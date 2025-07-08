@@ -5,7 +5,7 @@ from typing import Optional
 class RegisterData(BaseModel):
     phone_number: str
     password: str
-    role_id: Optional[int] = None  # Default role will be assigned if not provided
+    role_id: Optional[int] = None
 
 
 class Token(BaseModel):

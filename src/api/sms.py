@@ -8,10 +8,8 @@ from src.service.auth import UserAuthService
 from src.schemas.sms import (
     SendVerificationCodeRequest,
     SendVerificationCodeResponse,
-    VerifyCodeRequest,
-    VerifyCodeResponse,
     RegisterWithVerificationRequest,
-    RegisterWithVerificationResponse
+    RegisterWithVerificationResponse,
 )
 
 sms_router = APIRouter(prefix="/sms", tags=["SMS Verification"])
@@ -33,23 +31,10 @@ async def send_verification_code(
     result = await service.create_verification_session(request.phone_number)
     return SendVerificationCodeResponse(**result)
 
-
-@sms_router.post("/verify", response_model=VerifyCodeResponse)
-async def verify_code(
-    request: VerifyCodeRequest,
-    service: Annotated[SMSVerificationService, Depends(get_sms_service)],
-):
-    await service.verify_code(request.phone_number, request.code)
-    return VerifyCodeResponse(
-        message="Code verified successfully",
-        verified=True
-    )
-
-
 @sms_router.post("/register", response_model=RegisterWithVerificationResponse)
 async def register_with_verification(
     request: RegisterWithVerificationRequest,
     auth_service: Annotated[UserAuthService, Depends(get_auth_service)],
 ):
     result = await auth_service.register_with_verification(request)
-    return RegisterWithVerificationResponse(**result) 
+    return RegisterWithVerificationResponse(**result)

@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, Query, Security, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import Annotated, List
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from sharq_models.models import User
 from src.service.role import RoleService
 from src.schemas.role import RoleCreate, RoleUpdate, RoleResponse, UserRoleUpdate
-from src.utils.auth import get_current_user_with_role
+from src.utils.auth import require_roles
 from src.core.db import get_db
 
 role_router = APIRouter(prefix="/role", tags=["Role Management"])
@@ -19,9 +19,7 @@ def get_role_service(db: AsyncSession = Depends(get_db)):
 async def create_role(
     role_data: RoleCreate,
     service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[
-        User, Security(get_current_user_with_role, required_roles=["admin"])
-    ],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
 ):
     return await service.create_role(role_data)
 
@@ -30,9 +28,7 @@ async def create_role(
 async def get_role(
     role_id: int,
     service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[
-        User, Security(get_current_user_with_role, required_roles=["admin"])
-    ],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
 ):
     return await service.get_role_by_id(role_id)
 
@@ -40,9 +36,7 @@ async def get_role(
 @role_router.get("/", response_model=List[RoleResponse])
 async def get_all_roles(
     service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[
-        User, Security(get_current_user_with_role, required_roles=["admin"])
-    ],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
     limit: int = Query(100, ge=1),
     offset: int = Query(0, ge=0),
 ):
@@ -54,9 +48,7 @@ async def update_role(
     role_id: int,
     role_data: RoleUpdate,
     service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[
-        User, Security(get_current_user_with_role, required_roles=["admin"])
-    ],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
 ):
     return await service.update_role(role_id, role_data)
 
@@ -65,9 +57,7 @@ async def update_role(
 async def delete_role(
     role_id: int,
     service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[
-        User, Security(get_current_user_with_role, required_roles=["admin"])
-    ],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
 ):
     return await service.delete_role(role_id)
 
@@ -77,9 +67,7 @@ async def update_user_role(
     user_id: int,
     role_update: UserRoleUpdate,
     service: Annotated[RoleService, Depends(get_role_service)],
-    current_user: Annotated[
-        User, Security(get_current_user_with_role, required_roles=["admin"])
-    ],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
 ):
     await service.get_role_by_id(role_update.role_id)
 

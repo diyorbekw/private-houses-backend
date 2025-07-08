@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, Security
-from src.utils.auth import get_current_user
+from fastapi import APIRouter, Depends
+from src.utils.auth import require_roles
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated, List
-from sharq_models.models import User
+from sharq_models import User
 from src.service.study_form import StudyFormCrud
 from src.schemas.study_form import (
     StudyFormBase,
@@ -23,7 +23,7 @@ def get_service_crud(db: AsyncSession = Depends(get_db)):
 async def create_study_form(
     item: StudyFormBase,
     service: Annotated[StudyFormCrud, Depends(get_service_crud)],
-    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
 ):
     return await service.create_study_form(obj=item)
 
@@ -32,14 +32,14 @@ async def create_study_form(
 async def get_by_study_form_id(
     form_id: int,
     service: Annotated[StudyFormCrud, Depends(get_service_crud)],
-    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
 ):
     return await service.get_by_study_form_id(form_id=form_id)
 
 
 @study_form_router.get("/get_all", response_model=List[StudyFormResponse])
 async def get_all_study_forms(
-    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
     service: Annotated[StudyFormCrud, Depends(get_service_crud)],
     filter_items: StudyFormFilter = Depends(),
     limit: int = 20,
@@ -57,7 +57,7 @@ async def update_study_form(
     form_id: int,
     update_data: StudyFormUpdate,
     service: Annotated[StudyFormCrud, Depends(get_service_crud)],
-    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
 ):
     return await service.update_study_form(
         form_id=form_id,
@@ -68,7 +68,7 @@ async def update_study_form(
 @study_form_router.delete("/delete/{form_id}")
 async def delete_study_form(
     form_id: int,
-    current_user: Annotated[User, Security(get_current_user, scopes=["admin"])],
+    _: Annotated[User, Depends(require_roles(["admin"]))],
     service: Annotated[StudyFormCrud, Depends(get_service_crud)],
 ):
     return await service.delete_study_form(form_id=form_id)

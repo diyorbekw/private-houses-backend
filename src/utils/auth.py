@@ -83,7 +83,6 @@ async def get_current_user_with_role(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: AsyncSession = Depends(get_db),
 ):
-    """Get current user and verify they have one of the required roles"""
     user = await get_current_user(token=token, db=db)
 
     if not user.role:
@@ -110,3 +109,13 @@ def create_access_token(data: dict):
         to_encode, settings.access_secret_key, algorithm=settings.algorithm
     )
     return encoded_jwt
+
+
+def require_roles(required_roles: List[str]):
+    async def role_checker(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        db: AsyncSession = Depends(get_db),
+    ):
+        return await get_current_user_with_role(required_roles, token=token, db=db)
+
+    return role_checker
