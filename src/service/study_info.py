@@ -12,6 +12,9 @@ from src.schemas.study_info import (
     StudyInfoResponse,
 )
 from src.service import BasicCrud
+from src.schemas.study_language import StudyLanguageResponse
+from src.schemas.study_form import StudyFormResponse
+from src.schemas.study_direction import StudyDirectionResponse
 
 
 class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
@@ -51,9 +54,9 @@ class StudyInfoCrud(BasicCrud[StudyInfo, StudyInfoBase]):
         return StudyInfoResponse(
             id=study_info.id,
             user_id=study_info.user_id,
-            study_language=study_info.study_language.name,
-            study_form=study_info.study_form.name,
-            study_direction=study_info.study_direction.name,
+            study_language=StudyLanguageResponse.model_validate(study_info.study_language),
+            study_form=StudyFormResponse.model_validate(study_info.study_form),
+            study_direction=StudyDirectionResponse.model_validate(study_info.study_direction),
         )
 
     async def get_by_id_study_info(self, study_info_id: int) -> StudyInfoResponse:

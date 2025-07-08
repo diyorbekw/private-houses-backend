@@ -57,7 +57,7 @@ class RoleService(BasicCrud[Role, RoleBase]):
 
         if not role:
             default_role_data = RoleCreate(
-                name="user", description="Default user role", permissions='["read:own"]'
+                name="user"
             )
             role = await self.create_role(default_role_data)
 

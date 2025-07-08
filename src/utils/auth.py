@@ -7,7 +7,8 @@ from fastapi.params import Depends
 from fastapi.security import (
     OAuth2PasswordBearer,
 )
-from sqlalchemy import select
+from sqlalchemy.orm import joinedload
+from sqlalchemy import select 
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 from pydantic import ValidationError
@@ -44,7 +45,10 @@ async def authenticate_user(db: AsyncSession, username: str, password: str):
 
 
 async def get_user(db: AsyncSession, username: str):
-    stmt = select(User).where(User.phone_number == username)
+    stmt = select(User).options(
+        joinedload(User.role)
+    ).where(User.phone_number == username)
+    
     result = await db.execute(stmt)
     return result.scalars().first()
 
@@ -83,7 +87,7 @@ async def get_current_user_with_role(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: AsyncSession = Depends(get_db),
 ):
-    user = await get_current_user(token=token, db=db)
+    user: User = await get_current_user(token=token, db=db)
 
     if not user.role:
         raise HTTPException(
