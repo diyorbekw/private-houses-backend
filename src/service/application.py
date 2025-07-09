@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from sqlalchemy.orm import joinedload
+from src.schemas.application import ApplicationResponse
 
 from src.service import BasicCrud
 from sharq_models.models import (
@@ -41,7 +42,7 @@ class ApplicationCrud(BasicCrud[Application, ApplicationBase]):
                 status_code=status.HTTP_404_NOT_FOUND, detail="Application not found"
             )
 
-        return application
+        return ApplicationResponse.model_validate(application)
 
     async def get_all_application_with_nested_info(
         self, filter_data: ApplicationFilter, limit: int = 10, offset: int = 0
