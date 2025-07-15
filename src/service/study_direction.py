@@ -1,10 +1,11 @@
 from fastapi import HTTPException, status
 from src.service import BasicCrud
-from sharq_models.models import StudyDirection
+from sqlalchemy import select 
+from sqlalchemy.orm import joinedload
+from sharq_models.models import StudyDirection  #type: ignore
 from src.schemas.study_direction import (
     StudyDirectionBase,
     StudyDirectionUpdate,
-    StudyDirectionFilter,
     StudyDirectionResponse,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,46 +33,59 @@ class StudyDirectionCrud(BasicCrud[StudyDirection, StudyDirectionBase]):
         return await super().create(model=StudyDirection, obj_items=obj)
 
     async def get_by_study_direction_id(
-        self, direction_id: int
+        self,
+        direction_id: int,
     ) -> StudyDirectionResponse:
-        study_direction = await super().get_by_id(
-            model=StudyDirection, item_id=direction_id
+        stmt = (
+            select(StudyDirection)
+            .options(
+                joinedload(StudyDirection.study_form),
+                joinedload(StudyDirection.study_language),
+                joinedload(StudyDirection.study_type),
+                joinedload(StudyDirection.education_type),
+            )
+            .where(StudyDirection.id == direction_id)
         )
 
-        if not study_direction:
+        result = await self.db.execute(stmt)
+        direction_data = result.scalars().first()  
+
+        if not direction_data:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Yo'nalish topilmadi"
             )
 
-        return study_direction
+        return StudyDirectionResponse.model_validate(direction_data)
 
     async def get_study_direction_all(
-        self, filter_obj: StudyDirectionFilter, limit: int = 100, offset: int = 0
+        self, limit: int = 100, offset: int = 0
     ) -> List[StudyDirectionResponse]:
-        filters = []
-
-        if filter_obj.name:
-            filters.append(StudyDirection.name.ilike(f"%{filter_obj.name}%"))
-        if filter_obj.study_form:
-            filters.append(StudyDirection.study_form == filter_obj.study_form)
-        if filter_obj.contract_sum:
-            filters.append(StudyDirection.contract_sum == filter_obj.contract_sum)
-        if filter_obj.education_years:
-            filters.append(StudyDirection.education_years == filter_obj.education_years)
-        if filter_obj.study_code:
-            filters.append(StudyDirection.study_code == filter_obj.study_code)
-
-        return await super().get_all(
-            model=StudyDirection, limit=limit, offset=offset, filters=filters or None
+        stmt = (
+            select(StudyDirection)
+            .options(
+                joinedload(StudyDirection.study_form),
+                joinedload(StudyDirection.study_language),
+                joinedload(StudyDirection.study_type),
+                joinedload(StudyDirection.education_type),
+            )
+            .limit(limit)
+            .offset(offset)
         )
+        result = await self.db.execute(stmt)
+        direction_data = result.scalars().all()
+
+        return [
+            StudyDirectionResponse.model_validate(item, from_attributes=True)
+            for item in direction_data
+        ]
+        
 
     async def update_study_direction(
         self, direction_id: int, obj: StudyDirectionUpdate
     ) -> StudyDirectionResponse:
-        await self.get_by_study_direction_id(direction_id)
-        return await super().update(
-            model=StudyDirection, item_id=direction_id, obj_items=obj
-        )
+        await self.get_by_study_direction_id(direction_id)  
+        await super().update(model=StudyDirection, item_id=direction_id, obj_items=obj)
+        return await self.get_by_study_direction_id(direction_id)
 
     async def delete_study_direction(self, direction_id: int) -> dict:
         await self.get_by_study_direction_id(direction_id)

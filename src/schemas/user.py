@@ -14,19 +14,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: str | None = None
-    role_id: int | None = None
-
-
-class UserResponse(BaseModel):
-    id: int
-    phone_number: str
-    role_id: Optional[int] = None
-
-    class Config:
-        from_attributes = True
-
-
-class UserUpdate(BaseModel):
-    phone_number: Optional[str] = None
-    role_id: Optional[int] = None
+    username: Optional[str] = None
+    scopes: list[str] = []

@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from src.service import BasicCrud
-from sharq_models.models import StudyForm
+from sharq_models.models import StudyForm #type: ignore
 from src.schemas.study_form import (
     StudyFormBase,
     StudyFormUpdate,
@@ -8,7 +8,7 @@ from src.schemas.study_form import (
     StudyFormResponse,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+
 
 
 class StudyFormCrud(BasicCrud[StudyForm, StudyFormBase]):
@@ -41,7 +41,7 @@ class StudyFormCrud(BasicCrud[StudyForm, StudyFormBase]):
 
     async def get_study_form_all(
         self, filter_obj: StudyFormFilter, limit: int = 100, offset: int = 0
-    ) -> List[StudyFormResponse]:
+    ) -> list[StudyFormResponse]:
         filters = []
 
         if filter_obj.name:

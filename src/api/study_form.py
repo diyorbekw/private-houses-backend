@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from src.utils.auth import require_roles
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated, List
-from sharq_models import User
+from sharq_models import User #type: ignore
 from src.service.study_form import StudyFormCrud
 from src.schemas.study_form import (
     StudyFormBase,

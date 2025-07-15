@@ -2,19 +2,19 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional
 
 
-class StudyLanguageBase(BaseModel):
+class StudyTypeBase(BaseModel):
     name: str
 
 
-class StudyLanguageResponse(StudyLanguageBase):
+class StudyTypeResponse(StudyTypeBase):
     id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class StudyLanguageFilter(BaseModel):
+class StudyTypeFilter(BaseModel):
     name: Optional[str] = None
 
 
-class StudyLanguageUpdate(BaseModel):
+class StudyTypeUpdate(BaseModel):
     name: Optional[str] = None

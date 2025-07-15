@@ -3,8 +3,8 @@ from typing import Annotated
 from src.utils.auth import require_roles
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.service.application import ApplicationCrud
-from src.schemas.application import ApplicationFilter, ApplicationResponse
-from sharq_models import User
+from src.schemas.application import  ApplicationResponse
+from sharq_models import User #type: ignore
 from src.core.db import get_db
 
 application_router = APIRouter(prefix="/application", tags=["Application"])
@@ -22,7 +22,7 @@ async def get_application_by_id(
     service: Annotated[ApplicationCrud, Depends(get_service_crud)],
     _: Annotated[User,Depends(require_roles(["admin"]))],
 ):
-    return await service.get_application_with_nested_info(
+    return await service.get_application_by_application_id(
         application_id=applicationd_id
     )
 
@@ -31,12 +31,11 @@ async def get_application_by_id(
 async def get_all_applications(
     _: Annotated[User, Depends(require_roles(["admin"]))],
     service: Annotated[ApplicationCrud, Depends(get_service_crud)],
-    filter_data: ApplicationFilter = Depends(),
     limit: int = Query(10, ge=1),
     offset: int = Query(0, ge=0),
 ):
     return await service.get_all_application_with_nested_info(
-        filter_data=filter_data, limit=limit, offset=offset
+        limit=limit, offset=offset
     )
 
 

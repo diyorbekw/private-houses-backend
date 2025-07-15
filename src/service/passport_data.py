@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from src.service import BasicCrud
-from sharq_models.models import PassportData, User
+from sharq_models.models import PassportData, User #type: ignore
 from src.schemas.passport_data import (
     PassportDataBase,
     PassportDataUpdate,

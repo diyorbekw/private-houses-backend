@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from sharq_models import User
+from sharq_models import User #type: ignore
 from src.utils.auth import require_roles
 from src.service.study_direction import StudyDirectionCrud
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +7,6 @@ from src.schemas.study_direction import (
     StudyDirectionBase,
     StudyDirectionUpdate,
     StudyDirectionResponse,
-    StudyDirectionFilter,
 )
 from src.core.db import get_db
 from typing import Annotated, List
@@ -44,12 +43,10 @@ async def get_by_study_direction_id(
 async def get_all_study_directions(
     _: Annotated[User, Depends(require_roles(["admin"]))],
     service: Annotated[StudyDirectionCrud, Depends(get_service_crud)],
-    filter_items: StudyDirectionFilter = Depends(),
     limit: int = 20,
     offset: int = 0,
 ):
     return await service.get_study_direction_all(
-        filter_obj=filter_items,
         limit=limit,
         offset=offset,
     )

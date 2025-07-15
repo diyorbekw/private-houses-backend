@@ -14,7 +14,6 @@ class RoleUpdate(BaseModel):
     name: Optional[str] = None
 
 
-
 class RoleResponse(RoleBase):
     id: int
 

@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from src.service import BasicCrud
-from sharq_models.models import StudyLanguage
+from sharq_models.models import StudyLanguage #type: ignore 
 from src.schemas.study_language import (
     StudyLanguageBase,
     StudyLanguageUpdate,

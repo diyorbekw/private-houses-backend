@@ -75,7 +75,7 @@ class BasicCrud(Generic[ModelType, SchemaType]):
             if not db_obj:
                 return None
             for key, value in obj_items.model_dump(exclude_unset=True).items():
-                if value is None or value == "" or value == "string":
+                if value is None or value == "" or value == "string" or value == 0:
                     continue
                 setattr(db_obj, key, value)
             await self.db.commit()

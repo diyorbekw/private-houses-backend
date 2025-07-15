@@ -12,9 +12,6 @@ class Settings(BaseSettings):
     access_secret_key: str
     algorithm: str = "HS256"
 
-    sms_base_url: str = "https://notify.eskiz.uz/api"
-    sms_sender: str = "4546"
-    sms_api_key: str = ""
 
     model_config = SettingsConfigDict(env_file=".env")
 

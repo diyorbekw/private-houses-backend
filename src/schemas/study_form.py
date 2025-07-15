@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 
 class StudyFormBase(BaseModel):
@@ -12,8 +13,8 @@ class StudyFormResponse(StudyFormBase):
 
 
 class StudyFormFilter(BaseModel):
-    name: str | None = None
+    name: Optional[str] = None
 
 
 class StudyFormUpdate(BaseModel):
-    name: str | None = None
+    name: Optional[str] = None
