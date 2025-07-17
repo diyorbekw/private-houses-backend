@@ -26,3 +26,17 @@ class AuditLogResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class AuditLogRead(BaseModel):
+    id: int
+    user_type: str
+    user_id: int
+    action: str
+    entity: str
+    entity_id: int
+    old_value: Optional[dict]
+    new_value: Optional[dict]
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
