@@ -1,31 +1,31 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
 from uuid import UUID
+from typing import Optional
 from datetime import datetime
 
-
-class HouseCreate(BaseModel):
+class HouseBase(BaseModel):
     street_id: int
     house_number: str
-    latitude: Optional[float]
-    longitude: Optional[float]
+    latitude: float
+    longitude: float
     created_by: int
 
+class HouseCreate(HouseBase):
+    pass
 
 class HouseUpdate(BaseModel):
-    street_id: Optional[int]
-    house_number: Optional[str]
-    latitude: Optional[float]
-    longitude: Optional[float]
+    street_id: Optional[int] = None
+    house_number: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
-
-class HouseResponse(BaseModel):
+class HouseOut(BaseModel):
     id: int
     unique_code: UUID
     street_id: int
     house_number: str
-    latitude: Optional[float]
-    longitude: Optional[float]
+    latitude: float
+    longitude: float
     created_by: int
     created_at: datetime
 

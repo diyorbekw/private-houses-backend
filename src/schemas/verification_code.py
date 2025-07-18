@@ -1,21 +1,22 @@
 from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
 
-class VerificationCodeCreate(BaseModel):
+class VerificationCodeBase(BaseModel):
     phone: str
     code: str
-    expires_at: datetime
-
-
-class VerificationCodeResponse(BaseModel):
-    id: int
-    phone: str
-    code: str
-    is_verified: bool
+    is_verified: Optional[bool] = False
     sent_at: datetime
     expires_at: datetime
+
+
+class VerificationCodeCreate(VerificationCodeBase):
+    pass
+
+
+class VerificationCodeRead(VerificationCodeBase):
+    id: int
 
     class Config:
         orm_mode = True

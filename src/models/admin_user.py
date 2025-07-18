@@ -13,3 +13,4 @@ class AdminUser(Base):
     __table_args__ = (
         CheckConstraint("role IN ('admin', 'supervisor')"),
     )
+

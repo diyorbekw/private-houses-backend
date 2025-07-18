@@ -1,18 +1,17 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.core.db import get_db as get_session
-from src.schemas.verification_code import VerificationCodeCreate
-from src.service import verification_service
+from src.core.db import get_db
+from src.schemas.verification_code import VerificationCodeCreate, VerificationCodeRead
+import src.service.verification_service as svc
 
-router = APIRouter(prefix="/verification", tags=["Verification"])
-
-
-@router.post("/send")
-async def send_code(data: VerificationCodeCreate, session: AsyncSession = Depends(get_session)):
-    return await verification_service.create_verification_code(session, data)
+router = APIRouter(prefix="/verification-codes", tags=["Verification Code"])
 
 
-@router.post("/verify")
-async def verify(phone: str, code: str, session: AsyncSession = Depends(get_session)):
-    await verification_service.verify_code(session, phone, code)
-    return {"detail": "Success Verification"}
+@router.post("/", response_model=VerificationCodeRead)
+async def create_verification_code(data: VerificationCodeCreate, db: AsyncSession = Depends(get_db)):
+    return await svc.create_verification_code(db, data)
+
+
+@router.get("/", response_model=list[VerificationCodeRead])
+async def list_verification_codes(db: AsyncSession = Depends(get_db)):
+    return await svc.get_verification_codes(db)

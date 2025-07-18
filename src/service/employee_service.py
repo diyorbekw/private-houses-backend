@@ -1,53 +1,40 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from fastapi import HTTPException
-from src.models.employee import Employee
+from sqlalchemy import update, delete
+from src.models import Employee
 from src.schemas.employee import EmployeeCreate, EmployeeUpdate
-from src.service.audit_log_service import AuditLogger
-from src.utils.common import model_to_dict
 
 
-async def create_employee(session: AsyncSession, data: EmployeeCreate, actor_id: int, actor_type: str) -> Employee:
-    emp = Employee(**data.model_dump())
-    session.add(emp)
-    await session.commit()
-    await session.refresh(emp)
+class EmployeeService:
+    @staticmethod
+    async def create_employee(session: AsyncSession, data: EmployeeCreate) -> Employee:
+        employee = Employee(**data.dict())
+        session.add(employee)
+        await session.commit()
+        await session.refresh(employee)
+        return employee
 
-    logger = AuditLogger(session)
-    await logger.log(actor_type, actor_id, "create", "Employee", emp.id, None, model_to_dict(emp))
+    @staticmethod
+    async def get_employee_by_id(session: AsyncSession, employee_id: int) -> Employee:
+        result = await session.execute(select(Employee).where(Employee.id == employee_id))
+        return result.scalar_one_or_none()
 
-    return emp
+    @staticmethod
+    async def get_all_employees(session: AsyncSession) -> list[Employee]:
+        result = await session.execute(select(Employee))
+        return result.scalars().all()
 
+    @staticmethod
+    async def update_employee(session: AsyncSession, employee_id: int, data: EmployeeUpdate) -> Employee:
+        await session.execute(
+            update(Employee)
+            .where(Employee.id == employee_id)
+            .values(**data.dict(exclude_unset=True))
+        )
+        await session.commit()
+        return await EmployeeService.get_employee_by_id(session, employee_id)
 
-async def get_employee_by_id(session: AsyncSession, employee_id: int) -> Employee:
-    result = await session.execute(select(Employee).where(Employee.id == employee_id))
-    emp = result.scalar_one_or_none()
-    if not emp:
-        raise HTTPException(status_code=404, detail="Employee not found")
-    return emp
-
-
-async def update_employee(session: AsyncSession, employee_id: int, data: EmployeeUpdate, actor_id: int, actor_type: str) -> Employee:
-    emp = await get_employee_by_id(session, employee_id)
-    old_data = model_to_dict(emp)
-
-    for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(emp, key, value)
-    await session.commit()
-    await session.refresh(emp)
-
-    logger = AuditLogger(session)
-    await logger.log(actor_type, actor_id, "update", "Employee", emp.id, old_data, model_to_dict(emp))
-
-    return emp
-
-
-async def deactivate_employee(session: AsyncSession, employee_id: int, actor_id: int, actor_type: str) -> None:
-    emp = await get_employee_by_id(session, employee_id)
-    old_data = model_to_dict(emp)
-    emp.is_active = False
-    await session.commit()
-
-    logger = AuditLogger(session)
-    await logger.log(actor_type, actor_id, "deactivate", "Employee", emp.id, old_data, model_to_dict(emp))
-
+    @staticmethod
+    async def delete_employee(session: AsyncSession, employee_id: int) -> None:
+        await session.execute(delete(Employee).where(Employee.id == employee_id))
+        await session.commit()

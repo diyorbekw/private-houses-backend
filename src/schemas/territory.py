@@ -1,100 +1,113 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
-class CountryCreate(BaseModel):
+
+# ——— Country ———
+class CountryBase(BaseModel):
     name: str
 
-class CountryUpdate(BaseModel):
-    name: Optional[str]
+class CountryCreate(CountryBase):
+    pass
 
-class CountryResponse(BaseModel):
+class CountryUpdate(CountryBase):
+    pass
+
+class CountryRead(CountryBase):
     id: int
-    name: str
-
     class Config:
         orm_mode = True
 
 
-class RegionCreate(BaseModel):
+# ——— Region ———
+class RegionBase(BaseModel):
     name: str
     country_id: int
+
+class RegionCreate(RegionBase):
+    pass
 
 class RegionUpdate(BaseModel):
     name: Optional[str]
     country_id: Optional[int]
 
-class RegionResponse(BaseModel):
+class RegionRead(RegionBase):
     id: int
-    name: str
-    country_id: int
-
+    country: Optional[CountryRead]
     class Config:
         orm_mode = True
 
 
-class CityCreate(BaseModel):
+# ——— City ———
+class CityBase(BaseModel):
     name: str
     region_id: int
+
+class CityCreate(CityBase):
+    pass
 
 class CityUpdate(BaseModel):
     name: Optional[str]
     region_id: Optional[int]
 
-class CityResponse(BaseModel):
+class CityRead(CityBase):
     id: int
-    name: str
-    region_id: int
-
+    region: Optional[RegionRead]
     class Config:
         orm_mode = True
 
 
-class DistrictCreate(BaseModel):
+# ——— District ———
+class DistrictBase(BaseModel):
     name: str
     city_id: int
+
+class DistrictCreate(DistrictBase):
+    pass
 
 class DistrictUpdate(BaseModel):
     name: Optional[str]
     city_id: Optional[int]
 
-class DistrictResponse(BaseModel):
+class DistrictRead(DistrictBase):
     id: int
-    name: str
-    city_id: int
-
+    city: Optional[CityRead]
     class Config:
         orm_mode = True
 
 
-class MicroDistrictCreate(BaseModel):
+# ——— MicroDistrict ———
+class MicroDistrictBase(BaseModel):
     name: str
     district_id: int
+
+class MicroDistrictCreate(MicroDistrictBase):
+    pass
 
 class MicroDistrictUpdate(BaseModel):
     name: Optional[str]
     district_id: Optional[int]
 
-class MicroDistrictResponse(BaseModel):
+class MicroDistrictRead(MicroDistrictBase):
     id: int
-    name: str
-    district_id: int
-
+    district: Optional[DistrictRead]
     class Config:
         orm_mode = True
 
 
-class StreetCreate(BaseModel):
+# ——— Street ———
+class StreetBase(BaseModel):
     name: str
     microdistrict_id: int
+
+class StreetCreate(StreetBase):
+    pass
 
 class StreetUpdate(BaseModel):
     name: Optional[str]
     microdistrict_id: Optional[int]
 
-class StreetResponse(BaseModel):
+class StreetRead(StreetBase):
     id: int
-    name: str
-    microdistrict_id: int
-
+    microdistrict: Optional[MicroDistrictRead]
     class Config:
         orm_mode = True
