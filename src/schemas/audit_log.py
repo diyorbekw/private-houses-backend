@@ -25,7 +25,7 @@ class AuditLogResponse(BaseModel):
     timestamp: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class AuditLogRead(BaseModel):
     id: int

@@ -12,7 +12,7 @@ class CountryResponse(BaseModel):
     name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class RegionCreate(BaseModel):
@@ -29,7 +29,7 @@ class RegionResponse(BaseModel):
     country_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class CityCreate(BaseModel):
@@ -46,7 +46,7 @@ class CityResponse(BaseModel):
     region_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class DistrictCreate(BaseModel):
@@ -63,7 +63,7 @@ class DistrictResponse(BaseModel):
     city_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class MicroDistrictCreate(BaseModel):
@@ -80,7 +80,7 @@ class MicroDistrictResponse(BaseModel):
     district_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class StreetCreate(BaseModel):
@@ -97,4 +97,4 @@ class StreetResponse(BaseModel):
     microdistrict_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

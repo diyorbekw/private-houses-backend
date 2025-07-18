@@ -5,10 +5,7 @@ from src.core.db import get_db as get_session
 from src.service import audit_log_service
 from src.schemas.audit_log import AuditLogRead
 
-router = APIRouter(
-    prefix="/audit-logs",
-    tags=["Audit Logs"]
-)
+router = APIRouter(prefix="/audit-log", tags=["Audit Log"])
 
 
 @router.get("/", response_model=List[AuditLogRead])
